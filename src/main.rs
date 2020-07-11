@@ -13,7 +13,7 @@ struct Cli {
 #[tokio::main]
 async fn main() -> Result<(), ExitFailure> {
     let args = Cli::from_args();
-    let url = format!("https://api.openweathermap.org/data/2.5/weather?id={}&appid={{94296f2bccdcb1e7f0c6c890c4206ecc}}", args.place);
+    let url = format!("https://api.openweathermap.org/data/2.5/weather?id={}&appid={{}}", args.place);
     let url = Url::parse(&*url)?;
 
         let resp = reqwest::get(url)
@@ -23,3 +23,5 @@ async fn main() -> Result<(), ExitFailure> {
     println!("{:#?}", resp);
     Ok(())
 }
+
+
