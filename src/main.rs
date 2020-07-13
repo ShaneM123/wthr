@@ -17,7 +17,7 @@ struct Forecast {
     coord: Coord,
     weather: Weather,
     base: String,
-    temp: Temps,
+    main: Temps,
     visibility: i32,
     wind: Wind,
     clouds: Clouds,
