@@ -73,14 +73,45 @@ struct Sys {
 #[tokio::main]
 async fn main() -> Result<(), ExitFailure> {
     let args = Cli::from_args();
-    let resp = Forecast::get(args.place).await?;
-
-    println!("{:?}", resp.main.temp);
+    let resp = Forecast::get(&args.place).await?;
+    let temp_cel = kelvin_to_celcius(resp.main.temp);
+    let wind_speed = miles_per_sec_to_kmh(resp.wind.speed);
+    let wind_direction = degrees_to_compass(resp.wind.deg);
+    println!("{}: Clouds: {} Temp: {:.2} Humidity: {}% Wind Speed: {} Wind Direction: {} ", args.place, resp.weather.details.description, temp_cel, resp.main.humidity, wind_speed, wind_direction  );
     Ok(())
 }
 
+fn kelvin_to_celcius(kel: f64) -> f64{
+     kel - 273.15
+}
+fn degrees_to_compass(deg: i32) -> & 'static str {
+    match deg {
+        00..=22 => return "North",
+        22..=44 => return "North Northeast",
+        44..=46 => return "North East",
+        46..=67 => return "East Northeast",
+        67..=112 => return "East",
+        112..=134 => return "East Southeast",
+        134..=136 => return "Southeast",
+        136..=157 => return "South Southeast",
+        157..=202 => return "South",
+        202..=224 => return "South Southwest",
+        224..=226 => return "Southwest",
+        226..=247 => return "West Southwest",
+        247..=292 => return "West",
+        292..=314 => return "West Northwest",
+        314..=316 => return "Northwest",
+        316..=337 => return "North Northewest",
+        337..=360 => return "North",
+        _ => return "Error getting wind direction",
+    }
+}
+fn miles_per_sec_to_kmh(inputspeed: f64) -> f64 {
+    inputspeed * 3.6
+}
+
 impl Forecast {
-    async fn get(place: String) -> Result<Self,ExitFailure>{
+    async fn get(place: &String) -> Result<Self,ExitFailure>{
         let url = format!("http://127.0.0.1:8445/todayweatherbycity/{}", place);
 
         let url = Url::parse(&*url)?;
