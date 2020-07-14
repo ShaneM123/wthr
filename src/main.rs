@@ -73,19 +73,26 @@ struct Sys {
 #[tokio::main]
 async fn main() -> Result<(), ExitFailure> {
     let args = Cli::from_args();
-    let url = format!("http://127.0.0.1:8445/todayweatherbycity/{}", args.place);
+    let resp = Forecast::get(args.place).await?;
 
-    let url = Url::parse(&*url)?;
+    println!("{:?}", resp.main.temp);
+    Ok(())
+}
+
+impl Forecast {
+    async fn get(place: String) -> Result<Self,ExitFailure>{
+        let url = format!("http://127.0.0.1:8445/todayweatherbycity/{}", place);
+
+        let url = Url::parse(&*url)?;
 
         let resp = reqwest::get(url)
-        .await?
-         /*   .text()
-            .await?;*/
+            .await?
             .json::<Forecast>()
             .await?;
+        Ok(resp)
+    }
 
-    println!("{:?}", resp);
-    Ok(())
+
 }
 
 //    .json::<HashMap<String,String>>()
