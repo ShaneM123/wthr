@@ -9,7 +9,6 @@ use serde_derive::{Deserialize, Serialize};
 #[derive(StructOpt)]
 struct Cli {
     place: String,
-    id: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -74,7 +73,7 @@ struct Sys {
 #[tokio::main]
 async fn main() -> Result<(), ExitFailure> {
     let args = Cli::from_args();
-    let url = format!("https://api.openweathermap.org/data/2.5/weather?id={}&appid={}", args.place, args.id);
+    let url = format!("http://127.0.0.1:8445/todayweatherbycity/{}", args.place);
 
     let url = Url::parse(&*url)?;
 
