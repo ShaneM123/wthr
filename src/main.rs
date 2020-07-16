@@ -5,7 +5,8 @@ use serde_derive::{Deserialize, Serialize};
 
 #[derive(StructOpt)]
 struct Cli {
-    place: String,
+    city: String,
+    country_code: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -70,11 +71,12 @@ struct Sys {
 #[tokio::main]
 async fn main() -> Result<(), ExitFailure> {
     let args = Cli::from_args();
-    let resp = Forecast::get(&args.place).await?;
+    let place =  (&args.city, &args.country_code);
+    let resp = Forecast::get(place).await?;
     let temp_cel = kelvin_to_celcius(resp.main.temp);
     let wind_speed = miles_per_sec_to_kmh(resp.wind.speed);
     let wind_direction = degrees_to_compass(resp.wind.deg);
-    println!("{}: Clouds: {}  Temp: {:.2}  Humidity: {}%  Wind Speed: {}  Wind Direction: {} ", args.place, resp.weather.details.description, temp_cel, resp.main.humidity, wind_speed, wind_direction  );
+    println!("{}: Clouds: {}  Temp: {:.2}  Humidity: {}%  Wind Speed: {:.2}  Wind Direction: {} ", place.0, resp.weather.details.description, temp_cel, resp.main.humidity, wind_speed, wind_direction  );
     Ok(())
 }
 
@@ -108,8 +110,8 @@ fn miles_per_sec_to_kmh(inputspeed: f64) -> f64 {
 }
 
 impl Forecast {
-    async fn get(place: &String) -> Result<Self,ExitFailure>{
-        let url = format!("http://127.0.0.1:8445/todayweatherbycity/{}", place);
+    async fn get(place: (&String,&String)) -> Result<Self,ExitFailure>{
+        let url = format!("http://127.0.0.1:8445/todayweatherbycity/{}/{}", place.0,place.1);
 
         let url = Url::parse(&*url)?;
 
